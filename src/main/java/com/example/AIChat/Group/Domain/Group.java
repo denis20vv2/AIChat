@@ -22,7 +22,7 @@ public class Group {
 
     @Id
     @Column(nullable = false)
-    private Long GroupId;
+    private String GroupId;
 
     @Column(nullable = false)
     private String avatar;
@@ -32,15 +32,16 @@ public class Group {
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinTable(
-            name = "group_author",
+            name = "group_user",
             joinColumns = @JoinColumn(name = "group_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     @Column(nullable = false)
     private Set<User> users = new HashSet<>();
 
-    @Column(nullable = false)
-    Message lastMessage;
+    @OneToOne(optional = false)
+    @JoinColumn(name = "message_id", referencedColumnName = "messageId", nullable = false)
+    private Message lastMessage;
 
 
 
