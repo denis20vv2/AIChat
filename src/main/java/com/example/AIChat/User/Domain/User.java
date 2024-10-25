@@ -1,21 +1,22 @@
 package com.example.AIChat.User.Domain;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.GenericGenerator;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Table(name = "\"user\"")
 public class User {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(nullable = false)
     private String userId;
     @Column(nullable = false)

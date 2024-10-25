@@ -2,6 +2,7 @@ package com.example.AIChat.Group.Domain;
 
 import com.example.AIChat.Message.domain.Message;
 import com.example.AIChat.User.Domain.User;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,7 +14,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "Group")
+@Table(name = "\"group\"")
 @Getter
 @Setter
 @AllArgsConstructor
@@ -21,13 +22,15 @@ import java.util.Set;
 public class Group {
 
     @Id
-    @Column(nullable = false)
+    @GeneratedValue(strategy = GenerationType.UUID)
     private String GroupId;
 
     @Column(nullable = false)
+    @Schema(description = "адрес аватара", example = "group_avatar1.jpg")
     private String avatar;
 
     @Column(nullable = false)
+    @Schema(description = "имя юзера", example = "userNew")
     private String name;
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
@@ -40,51 +43,8 @@ public class Group {
     private Set<User> users = new HashSet<>();
 
     @OneToOne(optional = false)
-    @JoinColumn(name = "message_id", referencedColumnName = "messageId", nullable = false)
+    @JoinColumn(name = "last_message_id", referencedColumnName = "messageId", nullable = true)
     private Message lastMessage;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    ////////////////////////////////////////////////
-
-    /*@ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
-    @JoinTable(
-            name = "author_book",
-            joinColumns = @JoinColumn(name = "author_id"),
-            inverseJoinColumns = @JoinColumn(name = "book_id")
-    )
-    @Column(nullable = false)
-    private Set<Book> books = new HashSet<>();
-
-    @Id
-    @GenericGenerator(
-            name = "author_seq",
-            strategy = "org.hibernate.id.enhanced.SequenceStyleGenerator",
-            parameters = {
-                    @org.hibernate.annotations.Parameter(name = "sequence_name", value = "author_seq"),
-                    @org.hibernate.annotations.Parameter(name= "increment_size", value = "1"),
-                    @org.hibernate.annotations.Parameter(name= "initial_value", value = "1")
-            }
-    )
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "author_seq")
-    @Column(nullable = false)
-    private Long authorId;
-
-    @Column(nullable = false)
-    private String authorName;*/
 
 
 }

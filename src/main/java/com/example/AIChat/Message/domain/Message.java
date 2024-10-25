@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.GenericGenerator;
 
 import java.sql.Timestamp;
 
@@ -14,9 +15,11 @@ import java.sql.Timestamp;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Table(name = "message")
 public class Message {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(nullable = false)
     private String messageId;
 
@@ -30,16 +33,12 @@ public class Message {
     private String groupId;
 
     @Column(nullable = false)
-    private MessageType messageType;
+    private int messageType;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "ai_replied_id")
     private String AiRepliedid;
 
     @Column(nullable = false)
     private Timestamp created;
-
-    @OneToOne(optional = false)
-    @PrimaryKeyJoinColumn
-    private User user;
 
 }
