@@ -17,10 +17,7 @@ import org.springframework.stereotype.Service;
 import com.example.AIChat.Group.Rep.GroupRep;
 import org.webjars.NotFoundException;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @AllArgsConstructor
 @Service
@@ -68,9 +65,12 @@ public class GroupService {
         return groupRep.save(group);
     }
 
-    public List<Group> getAllGroups(int page, int size) {
+    public List<Group> getAllGroups(String userId, int page, int size) {
+
+        //User user = userRep.findByUserId(userId);
+
         Pageable pageable = PageRequest.of(page, size, Sort.by("name").ascending());
-        return groupRep.findAll(pageable).getContent();
+        return groupRep.findByUsersUserId(userId, pageable).getContent();
     }
 
 }
