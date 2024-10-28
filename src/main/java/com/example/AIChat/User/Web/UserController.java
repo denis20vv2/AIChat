@@ -35,4 +35,16 @@ public class UserController {
         logger.info("Получен запрос на получение всех пользователей");
         return userService.getAllUsers(page, size);
     }
+
+    @Operation(
+            summary = "Получение всех юзеров чата по groupId",
+            description = "Получение юзеров с groupId. Если groupId = 0, то получаем всех пользователей "
+    )
+    @GetMapping("GetUsers/groupId/{groupId}")
+    //@ResponseStatus(HttpStatus.CREATED)
+    @ResponseBody
+    public List<User> GetUsersByUserId (@PathVariable String groupId, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+        logger.info("Получен запрос на получение всех юзеров группы");
+        return userService.getUsersByGroupId(groupId, page, size);
+    }
 }

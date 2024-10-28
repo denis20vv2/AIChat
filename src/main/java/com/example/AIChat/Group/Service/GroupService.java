@@ -54,18 +54,18 @@ public class GroupService {
         }
         group.setUsers(users);
 
-        Message lastMessage = messageRep.findByMessageId(postGroupReq.getLastMessageId());
-        if (lastMessage == null) {
-            throw new NotFoundException("Сообщение не найдено");
-        }
-        group.setLastMessage(lastMessage);
+        //Message lastMessage = messageRep.findByMessageId(postGroupReq.getLastMessageId());
+//        if (lastMessage == null) {
+//            throw new NotFoundException("Сообщение не найдено");
+//        }
+        //group.setLastMessage(lastMessage);
 
         logger.info("Группа создана успешно");
 
         return groupRep.save(group);
     }
 
-    public List<Group> getAllGroups(String userId, int page, int size) {
+    public List<Group> getAllGroupsByUserId(String userId, int page, int size) {
 
         //User user = userRep.findByUserId(userId);
 

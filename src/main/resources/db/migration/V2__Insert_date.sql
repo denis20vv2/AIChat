@@ -9,7 +9,9 @@ INSERT INTO "group" (group_id, avatar, name) VALUES
 
 INSERT INTO message (message_id, message, user_id, group_id, message_type, ai_replied_id, created) VALUES
 ('msg1', 'Hello, World!', 'user1', 'group1', 0 , 'ai_reply_1', CURRENT_TIMESTAMP),
-('msg2', 'AI replied message', 'user2', 'group1', 0, 'ai_reply_2', CURRENT_TIMESTAMP);
+('msg2', 'AI replied message', 'user2', 'group1', 0, 'ai_reply_2', CURRENT_TIMESTAMP),
+('msg3', 'Hello, World!', 'user3', 'group1', 0 , 'ai_reply_3', CURRENT_TIMESTAMP),
+('msg4', 'AI replied message', 'user4', 'group2', 0, 'ai_reply_4', CURRENT_TIMESTAMP);
 
 
 INSERT INTO group_user (group_id, user_id) VALUES

@@ -36,6 +36,7 @@ CREATE TABLE message (
 ALTER TABLE "group"
 ADD CONSTRAINT fk_last_message FOREIGN KEY (last_message_id) REFERENCES message(message_id) ON DELETE CASCADE;
 
+
 CREATE TABLE group_user (
     group_id VARCHAR(255) NOT NULL,
     user_id VARCHAR(255) NOT NULL,

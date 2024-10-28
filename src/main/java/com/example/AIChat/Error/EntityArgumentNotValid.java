@@ -1,4 +1,4 @@
-package com.example.AIChat.Group.Error;
+package com.example.AIChat.Error;
 
 import lombok.Getter;
 import lombok.Setter;

@@ -29,6 +29,7 @@ public class Message {
     @Column(nullable = false)
     private  String userId;
 
+    //@OneToOne(optional = false)
     @Column(nullable = false)
     private String groupId;
 

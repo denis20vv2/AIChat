@@ -37,4 +37,15 @@ public class MessageController {
     }
 
 
+    @Operation(
+            summary = "Получение всех сообщений группы с groupId",
+            description = "По полученому groupId выводим все сообщения этой группы"
+    )
+    @GetMapping("GetMessage/Id/{groupId}")
+    @ResponseBody
+    public List<Message> getAllMessagesByGroupId (@PathVariable String groupId, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size){
+        return messageService.getAllMessagesByGroupId(groupId, page, size);
+    }
+
+
 }

@@ -1,5 +1,6 @@
 package com.example.AIChat.Message.Service;
 
+import com.example.AIChat.Group.Domain.Group;
 import com.example.AIChat.Group.Rep.GroupRep;
 import com.example.AIChat.Message.Rep.MessageRep;
 import com.example.AIChat.Message.domain.Message;
@@ -24,5 +25,15 @@ public class MessageService {
         Pageable pageable = PageRequest.of(page, size, Sort.by("message").ascending());
         return messageRep.findAll(pageable).getContent();
     }
+
+    public List<Message> getAllMessagesByGroupId(String groupId, int page, int size) {
+
+        //User user = userRep.findByUserId(userId);
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("created").ascending());
+        return messageRep.findByGroupId(groupId, pageable).getContent();
+    }
+
+
 
 }

@@ -1,4 +1,4 @@
-package com.example.AIChat.Group.Error;
+package com.example.AIChat.Error;
 
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
