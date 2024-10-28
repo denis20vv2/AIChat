@@ -28,7 +28,7 @@ public class PostGroupReq {
     @Schema(description = "id юзера")
     @NotNull(message = "userId data is missing")
     private List<String> userIds = new ArrayList<String>();
-    @Schema(description = "Последнее сообщение группы", example = "msg1")
-    private String lastMessageId;
+    //@Schema(description = "Последнее сообщение группы", example = "msg1")
+    //private String lastMessageId;
 
 }
