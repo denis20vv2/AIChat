@@ -29,11 +29,13 @@ public class Message {
     @Column(nullable = false)
     private  String userId;
 
+    //@OneToOne(optional = false)
     @Column(nullable = false)
     private String groupId;
 
     @Column(nullable = false)
-    private int messageType;
+    @Enumerated(EnumType.STRING)
+    private MessageType messageType;
 
     @Column(nullable = false, name = "ai_replied_id")
     private String AiRepliedid;
