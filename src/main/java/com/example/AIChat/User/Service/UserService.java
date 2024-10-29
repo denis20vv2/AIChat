@@ -5,7 +5,13 @@ import com.example.AIChat.Group.Rep.GroupRep;
 import com.example.AIChat.Group.Service.GroupService;
 import com.example.AIChat.Message.Rep.MessageRep;
 import com.example.AIChat.User.Domain.User;
+import com.example.AIChat.User.Rep.AutorizteRep;
 import com.example.AIChat.User.Rep.UserRep;
+import com.example.AIChat.User.Web.AutorizateReq;
+import com.example.AIChat.User.Web.RegistrationReq;
+import com.example.AIChat.User.Web.RequestAutorizate;
+
+import com.example.AIChat.User.Web.ResponseAutorizate;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
@@ -26,6 +32,7 @@ public class UserService {
     private final GroupRep groupRep;
     private final UserRep userRep;
     private final MessageRep messageRep;
+    private  final AutorizteRep autorizteRep;
 
 
     public List<User> getAllUsers(int page, int size) {
@@ -67,5 +74,72 @@ public class UserService {
         return users.subList(start, end);}
     }
 
+
+    public ResponseAutorizate getUsersAutorizate(AutorizateReq autorizateReq) {
+
+        ResponseAutorizate responseBody = new ResponseAutorizate();
+
+        if(autorizteRep.findByLogin(autorizateReq.getLogin()) == null){
+            responseBody.setUserId(null);
+            responseBody.setStatus(false);
+            responseBody.setMessageStatus("Неверный логин или пароль");
+
+            return responseBody;
+        }
+
+
+        RequestAutorizate user = autorizteRep.findByLogin(autorizateReq.getLogin());
+
+
+
+        if(!user.getPassword().equals(autorizateReq.getPassword())){
+            responseBody.setUserId(null);
+            responseBody.setStatus(false);
+            responseBody.setMessageStatus("Неверный логин или пароль");
+            return responseBody;
+        }
+
+        //ResponseAutorizate responseBody = new ResponseAutorizate();
+        responseBody.setUserId(user.getUserId());
+        responseBody.setStatus(true);
+        responseBody.setMessageStatus("Авторизация прошла успешно");
+
+        return responseBody;
+    }
+
+    public ResponseAutorizate registration (RegistrationReq autorizateReq) {
+
+        if (autorizateReq.getLogin().isEmpty() || autorizateReq.getName().isEmpty() || autorizateReq.getPassword().isEmpty() || autorizateReq.getAvatar().isEmpty() ){
+            throw new IllegalArgumentException("Не все поля заполнены");
+        }
+
+        if (autorizateReq.getLogin() == null || autorizateReq.getName() == null || autorizateReq.getPassword() == null || autorizateReq.getAvatar() == null ){
+            throw new IllegalArgumentException("Не все поля заполнены. Одно из полей = null");
+        }
+
+        ResponseAutorizate responseBody = new ResponseAutorizate();
+
+        if(autorizteRep.findByLogin(autorizateReq.getLogin()) != null){
+            responseBody.setUserId(null);
+            responseBody.setStatus(false);
+            responseBody.setMessageStatus("Такой логин уже существует");
+
+            return responseBody;
+        }
+
+        User user = new User();
+        user.setName(autorizateReq.getName());
+        user.setAvatar(autorizateReq.getAvatar());
+        String userId = (userRep.save(user)).getUserId();
+
+        RequestAutorizate userReg = new RequestAutorizate();
+        userReg.setLogin(autorizateReq.getLogin());
+        userReg.setPassword(autorizateReq.getPassword());
+        userReg.setUserId(userId);
+        autorizteRep.save(userReg);
+        responseBody.setMessageStatus("Пользователь создан");
+
+        return responseBody;
+    }
 
 }

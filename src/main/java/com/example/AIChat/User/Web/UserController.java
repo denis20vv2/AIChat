@@ -7,9 +7,11 @@ import com.example.AIChat.User.Domain.User;
 import com.example.AIChat.User.Service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -47,4 +49,27 @@ public class UserController {
         logger.info("Получен запрос на получение всех юзеров группы");
         return userService.getUsersByGroupId(groupId, page, size);
     }
+
+    @Operation(
+            summary = "авторизация"
+    )
+    @PostMapping("authorization")
+    @ResponseStatus(HttpStatus.CREATED)
+    @ResponseBody
+    public ResponseAutorizate getUsersAutorizate(@Valid @RequestBody AutorizateReq autorizateReq) {
+        logger.info("Получен запрос на авторизацию");
+        return userService.getUsersAutorizate(autorizateReq);
+    }
+
+    @Operation(
+            summary = "Регистрация"
+    )
+    @PostMapping("registration")
+    @ResponseStatus(HttpStatus.CREATED)
+    @ResponseBody
+    public ResponseAutorizate registration (@Valid @RequestBody RegistrationReq registrationReq) {
+        logger.info("Получен запрос на регистрацию");
+        return userService.registration(registrationReq);
+    }
+
 }

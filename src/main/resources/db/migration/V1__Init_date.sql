@@ -28,7 +28,7 @@ CREATE TABLE message (
     message TEXT NOT NULL,
     user_id VARCHAR(255) NOT NULL,
     group_id VARCHAR(255) NOT NULL,
-    message_type INTEGER NOT NULL,
+    message_type VARCHAR(255) NOT NULL,
     ai_replied_id VARCHAR(255),
     created TIMESTAMP NOT NULL
 );
@@ -45,6 +45,12 @@ CREATE TABLE group_user (
     CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES "user" (user_id) ON DELETE CASCADE
 );
 
+CREATE TABLE UZ (
+    id VARCHAR(255) NOT NULL,
+    login VARCHAR(255) NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    user_id VARCHAR(255) NOT NULL
+);
 
 --select * from "user"
 --select * from "group"
@@ -60,3 +66,4 @@ CREATE TABLE group_user (
 --drop sequence message_seq
 --drop sequence group_seq
 --drop sequence user_seq
+--drop table UZ
