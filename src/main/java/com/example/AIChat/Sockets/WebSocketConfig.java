@@ -16,13 +16,22 @@ import java.io.IOException;
 import java.util.List;
 
 
-@Configuration
-@EnableWebSocket
-public class WebSocketConfig implements WebSocketConfigurer {
+/*@Configuration
+@EnableWebSocketMessageBroker
+public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
-    public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(new MyHandler(), "/ws").setAllowedOrigins("*");
+    public void configureMessageBroker(MessageBrokerRegistry config) {
+        config.enableSimpleBroker("/topic");  // Используется для отправки сообщений клиентам
+        config.setApplicationDestinationPrefixes("/app");  // Префикс для сообщений от клиентов
     }
-}
+
+    @Override
+    public void registerStompEndpoints(StompEndpointRegistry registry) {
+        registry.addEndpoint("/ws")
+                .setAllowedOrigins("*")
+                .withSockJS();  // Добавляет поддержку SockJS для лучшей совместимости
+    }
+}*/
+
 
 

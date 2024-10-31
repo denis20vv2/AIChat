@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/api")
 @Tag(name="User")
 @RequiredArgsConstructor
 @Validated
@@ -42,11 +42,11 @@ public class UserController {
             summary = "Получение всех юзеров чата по groupId",
             description = "Получение юзеров с groupId. Если groupId = 0, то получаем всех пользователей "
     )
-    @GetMapping("GetUsers/groupId/{groupId}")
+    @GetMapping("userList/{groupId}")
     //@ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
     public List<User> GetUsersByUserId (@PathVariable String groupId, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
-        logger.info("Получен запрос на получение всех юзеров группы");
+        logger.info("get userList by groupId");
         return userService.getUsersByGroupId(groupId, page, size);
     }
 
@@ -57,7 +57,7 @@ public class UserController {
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
     public ResponseAutorizate getUsersAutorizate(@Valid @RequestBody AutorizateReq autorizateReq) {
-        logger.info("Получен запрос на авторизацию");
+        logger.info("request on autorization");
         return userService.getUsersAutorizate(autorizateReq);
     }
 
@@ -67,8 +67,8 @@ public class UserController {
     @PostMapping("registration")
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
-    public ResponseAutorizate registration (@Valid @RequestBody RegistrationReq registrationReq) {
-        logger.info("Получен запрос на регистрацию");
+    public ResponseRegistration registration (@Valid @RequestBody RegistrationReq registrationReq) {
+        logger.info("request on registration");
         return userService.registration(registrationReq);
     }
 

@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/group")
+@RequestMapping("/api")
 @Tag(name="Group")
 @RequiredArgsConstructor
 @Validated
@@ -30,11 +30,11 @@ public class GroupController {
             summary = "Создание новой группы",
             description = "Ожидаем на вход объект типа group и сохраняем его в БД"
     )
-    @PostMapping("CreateGroup")
+    @PostMapping("createGroup")
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
     public Group createGroup (@Valid @RequestBody PostGroupReq postGroupReq) {
-        logger.info("Получен запрос на создание Новой группы");
+        logger.info("getting request on creating new group");
         return groupService.createGroup(postGroupReq);
     }
 
@@ -42,11 +42,11 @@ public class GroupController {
             summary = "Получение групп по userId",
             description = "Получение userid, всех связаных с userи вывод groups"
     )
-    @GetMapping("GetChats/userId/{userId}")
+    @GetMapping("chats/{userId}")
     //@ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
     public List<Group> GetAllGroupsByUserId (@PathVariable String userId, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
-        logger.info("Получен запрос на получение всех групп");
+        logger.info("get chats by userid");
         return groupService.getAllGroupsByUserId(userId, page, size);
     }
 

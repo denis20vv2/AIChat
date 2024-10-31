@@ -7,11 +7,8 @@ import com.example.AIChat.Message.Rep.MessageRep;
 import com.example.AIChat.User.Domain.User;
 import com.example.AIChat.User.Rep.AutorizteRep;
 import com.example.AIChat.User.Rep.UserRep;
-import com.example.AIChat.User.Web.AutorizateReq;
-import com.example.AIChat.User.Web.RegistrationReq;
-import com.example.AIChat.User.Web.RequestAutorizate;
+import com.example.AIChat.User.Web.*;
 
-import com.example.AIChat.User.Web.ResponseAutorizate;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
@@ -88,11 +85,11 @@ public class UserService {
         }
 
 
-        RequestAutorizate user = autorizteRep.findByLogin(autorizateReq.getLogin());
+        RequestAutorizate UserUZ = autorizteRep.findByLogin(autorizateReq.getLogin());
 
+        User user = userRep.findByUserId(UserUZ.getUserId());
 
-
-        if(!user.getPassword().equals(autorizateReq.getPassword())){
+        if(!UserUZ.getPassword().equals(autorizateReq.getPassword())){
             responseBody.setUserId(null);
             responseBody.setStatus(false);
             responseBody.setMessageStatus("Неверный логин или пароль");
@@ -100,14 +97,16 @@ public class UserService {
         }
 
         //ResponseAutorizate responseBody = new ResponseAutorizate();
-        responseBody.setUserId(user.getUserId());
+        responseBody.setUserId(UserUZ.getUserId());
         responseBody.setStatus(true);
         responseBody.setMessageStatus("Авторизация прошла успешно");
+        responseBody.setName(user.getName());
+        responseBody.setAvatar(user.getAvatar());
 
         return responseBody;
     }
 
-    public ResponseAutorizate registration (RegistrationReq autorizateReq) {
+    public ResponseRegistration registration (RegistrationReq autorizateReq) {
 
         if (autorizateReq.getLogin().isEmpty() || autorizateReq.getName().isEmpty() || autorizateReq.getPassword().isEmpty() || autorizateReq.getAvatar().isEmpty() ){
             throw new IllegalArgumentException("Не все поля заполнены");
@@ -117,10 +116,10 @@ public class UserService {
             throw new IllegalArgumentException("Не все поля заполнены. Одно из полей = null");
         }
 
-        ResponseAutorizate responseBody = new ResponseAutorizate();
+        ResponseRegistration responseBody = new ResponseRegistration();
 
         if(autorizteRep.findByLogin(autorizateReq.getLogin()) != null){
-            responseBody.setUserId(null);
+            //responseBody.setUserId(null);
             responseBody.setStatus(false);
             responseBody.setMessageStatus("Такой логин уже существует");
 

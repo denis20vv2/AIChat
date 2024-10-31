@@ -11,10 +11,10 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @SpringBootApplication
 public class AiChatApplication {
 
-	//private static final Logger logger = LoggerFactory.getLogger(AiChatApplication.class);
+	private static final Logger logger = LoggerFactory.getLogger(AiChatApplication.class);
 	public static void main(String[] args) {
 		SpringApplication.run(AiChatApplication.class, args);
-
+		logger.info("start");
 	}
 
 }

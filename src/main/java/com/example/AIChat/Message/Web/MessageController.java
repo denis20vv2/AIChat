@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/message")
+@RequestMapping("/api")
 @Tag(name="message")
 @RequiredArgsConstructor
 @Validated
@@ -29,10 +29,10 @@ public class MessageController {
             summary = "Получение всех сообщений",
             description = "Получение всех сообщений с пагинацией"
     )
-    @GetMapping("GetMessages/All")
+    @GetMapping("messages")
     @ResponseBody
     public List<Message> GetAllMessages (@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
-        logger.info("Получен запрос на получение всех сообщений");
+        logger.info("Get messages all");
         return messageService.getAllMessages(page, size);
     }
 
@@ -41,9 +41,10 @@ public class MessageController {
             summary = "Получение всех сообщений группы с groupId",
             description = "По полученому groupId выводим все сообщения этой группы"
     )
-    @GetMapping("GetMessage/Id/{groupId}")
+    @GetMapping("messages/{groupId}")
     @ResponseBody
     public List<Message> getAllMessagesByGroupId (@PathVariable String groupId, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size){
+        logger.info("Get messages by groupId");
         return messageService.getAllMessagesByGroupId(groupId, page, size);
     }
 
