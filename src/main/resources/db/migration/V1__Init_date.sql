@@ -30,7 +30,8 @@ CREATE TABLE message (
     group_id VARCHAR(255) NOT NULL,
     message_type VARCHAR(255) NOT NULL,
     ai_replied_id VARCHAR(255),
-    created TIMESTAMP NOT NULL
+    created TIMESTAMP NOT NULL,
+    CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES "user" (user_id) ON DELETE CASCADE
 );
 
 ALTER TABLE "group"

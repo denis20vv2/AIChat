@@ -26,8 +26,9 @@ public class Message {
     @Column(nullable = false)
     private String message;
 
-    @Column(nullable = false)
-    private  String userId;
+    @OneToOne(optional = false)
+    @JoinColumn(name = "user_id", referencedColumnName = "user_id", nullable = false)
+    private User user;
 
     //@OneToOne(optional = false)
     @Column(nullable = false)
