@@ -55,7 +55,7 @@ public class MessageSocketService {
         //messageAnswer.setMessageId(answer.getMessageId());
 
 
-        User user = messageRep.findByMessageId(oldMessageId).getUser();;
+        User user = (messageRep.findByMessageId(oldMessageId)).getUser();
         message.setUser(user);
         //message.setUser(userRep.findByUserId(messageDTO.getUserId()));
         message.setGroupId((messageRep.findByMessageId(oldMessageId)).getGroupId());
@@ -79,7 +79,7 @@ public class MessageSocketService {
         messageAnswer.setMessage(answer.getAnswer());
         //messageAnswer.setMessageId(answer.getMessageId());
 
-        User user = messageRep.findByMessageId(oldMessageId).getUser();;
+        User user = (messageRep.findByMessageId(oldMessageId)).getUser();;
         messageAnswer.setUser(user);
 
         //messageAnswer.setUser(userRep.findByUserId(messageDTO.getUserId()));
@@ -91,6 +91,8 @@ public class MessageSocketService {
         long createdMillis = (long) createdInt * 1000;
         Timestamp createdTimestamp = new Timestamp(createdMillis);
         messageAnswer.setCreated(createdTimestamp);
+
+        messageAnswer.setMessageAnswer(messageRep.findByMessageId(oldMessageId));
 
         return messageAnswer;
     }
