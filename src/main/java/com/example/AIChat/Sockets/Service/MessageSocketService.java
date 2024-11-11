@@ -6,6 +6,7 @@ import com.example.AIChat.Message.domain.Message;
 import com.example.AIChat.Message.domain.MessageAnswer;
 import com.example.AIChat.Message.domain.MessageType;
 import com.example.AIChat.Sockets.DTO.Answer;
+import com.example.AIChat.Sockets.DTO.RequestForAI;
 import com.example.AIChat.User.Domain.User;
 import com.example.AIChat.User.Rep.UserRep;
 import lombok.AllArgsConstructor;
@@ -34,7 +35,7 @@ public class MessageSocketService {
     public Message MessageDTOToMessage(MessageDTO messageDTO){
 
         Message message = new Message();
-        message.setMessageId(messageDTO.getMessageId());
+        //message.setMessageId(messageDTO.getMessageId());
         message.setMessage(messageDTO.getMessage());
         message.setUser(userRep.findByUserId(messageDTO.getUserId()));
         message.setGroupId(messageDTO.getGroupId());
@@ -42,6 +43,26 @@ public class MessageSocketService {
         message.setAiRepliedid(messageDTO.getAiRepliedid());
         message.setCreated(messageDTO.getCreated());
         return message;
+
+    }
+
+    public RequestForAI MessageDTOToMessageRequestForAI(Message message){
+
+        RequestForAI requestForAI = new RequestForAI();
+        requestForAI.setMessageId(message.getMessageId());
+        requestForAI.setMessage(message.getMessage());
+        requestForAI.setUser(message.getUser());
+        requestForAI.setGroupId(message.getGroupId());
+        requestForAI.setMessageType(message.getMessageType());
+        requestForAI.setAiRepliedid(message.getAiRepliedid());
+
+
+        Timestamp dateTime = message.getCreated();
+
+        int seconds = (int) (dateTime.getTime() / 1000);
+
+        requestForAI.setCreated(seconds);
+        return requestForAI;
 
     }
 

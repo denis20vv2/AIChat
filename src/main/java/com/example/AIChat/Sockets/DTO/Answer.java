@@ -8,5 +8,6 @@ import lombok.Setter;
 public class Answer {
     private String answer;
     private String messageId;
+    private String groupId;
     private int created;
 }

@@ -8,14 +8,12 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.sql.Timestamp;
 @Getter
 @Setter
 public class MessageDTO {
-
-    @NotNull(message = "messageId data is missing")
-    private String messageId;
 
     @NotNull(message = "message data is missing")
     private String message;
@@ -29,10 +27,11 @@ public class MessageDTO {
     @NotNull(message = "messageType data is missing")
     private MessageType messageType;
 
-    @NotNull(message = "AiRepliedid data is missing")
+    //@NotNull(message = "AiRepliedid data is missing")
     private String AiRepliedid;
 
     @NotNull(message = "created data is missing")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSSSSS")
     private Timestamp created;
 
 }

@@ -18,7 +18,7 @@ public class SocketIOConfig {
         this.socketIoService = socketIoService;
 
         com.corundumstudio.socketio.Configuration config = new com.corundumstudio.socketio.Configuration();
-        config.setHostname("192.168.1.63");
+        config.setHostname("192.168.1.62");
         config.setPort(8081); // Порт для Socket.IO сервера
 
         // Инициализация сервера

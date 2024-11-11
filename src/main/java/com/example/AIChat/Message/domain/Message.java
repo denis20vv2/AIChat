@@ -1,6 +1,7 @@
 package com.example.AIChat.Message.domain;
 
 import com.example.AIChat.User.Domain.User;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -38,10 +39,11 @@ public class Message {
     @Enumerated(EnumType.STRING)
     private MessageType messageType;
 
-    @Column(nullable = false, name = "ai_replied_id")
+    @Column(nullable = true, name = "ai_replied_id")
     private String AiRepliedid;
 
     @Column(nullable = false)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSSSSS")
     private Timestamp created;
 
 }
