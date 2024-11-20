@@ -33,7 +33,7 @@ public class Group {
     @Schema(description = "имя юзера", example = "userNew")
     private String name;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
     @JoinTable(
             name = "group_user",
             joinColumns = @JoinColumn(name = "group_id"),

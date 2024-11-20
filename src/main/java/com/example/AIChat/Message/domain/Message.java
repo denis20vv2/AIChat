@@ -3,6 +3,7 @@ package com.example.AIChat.Message.domain;
 import com.example.AIChat.User.Domain.User;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,11 +28,10 @@ public class Message {
     @Column(nullable = false)
     private String message;
 
-    @OneToOne(optional = false)
-    @JoinColumn(name = "user_id", referencedColumnName = "user_id", nullable = false)
+    @OneToOne(optional = true)
+    @JoinColumn(name = "user_id", referencedColumnName = "user_id", nullable = true)
     private User user;
 
-    //@OneToOne(optional = false)
     @Column(nullable = false)
     private String groupId;
 
@@ -39,11 +39,14 @@ public class Message {
     @Enumerated(EnumType.STRING)
     private MessageType messageType;
 
-    @Column(nullable = true, name = "ai_replied_id")
-    private String AiRepliedid;
-
     @Column(nullable = false)
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSSSSS")
-    private Timestamp created;
+    @Max(9999999999999L)
+    private long created;
+
+    @OneToOne(optional = true)
+    @JoinColumn(name = "ai_replied_id", referencedColumnName = "messageId", nullable = true)
+    private Message messageNested ;
+
+
 
 }

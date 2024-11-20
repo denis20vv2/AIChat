@@ -1,21 +1,22 @@
 package com.example.AIChat.Sockets.Web;
 
 import com.corundumstudio.socketio.SocketIOClient;
-import com.corundumstudio.socketio.SocketIOServer;
 import com.corundumstudio.socketio.annotation.OnConnect;
 import com.corundumstudio.socketio.annotation.OnDisconnect;
 import com.corundumstudio.socketio.annotation.OnEvent;
+import com.example.AIChat.Group.Service.GroupService;
 import com.example.AIChat.Message.DTO.MessageDTO;
 import com.example.AIChat.Message.domain.Message;
 import com.example.AIChat.Message.domain.MessageType;
 import com.example.AIChat.Sockets.DTO.Answer;
-import com.example.AIChat.Sockets.DTO.RequestForAI;
+import com.example.AIChat.Sockets.DTO.MessageAddedUser;
 import com.example.AIChat.Sockets.Service.MessageSocketService;
+import com.example.AIChat.User.Domain.User;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.sql.Timestamp;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -23,153 +24,204 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 public class SocketIoService {
 
-    //private final SocketIOServer server;
-
     private final MessageSocketService messageSocketService;
 
-    //private final Map<UUID, SocketIOClient> connectedClients = new ConcurrentHashMap<>();
-    private final Map<String, List<SocketIOClient>> connectedClients = new ConcurrentHashMap<>();
+    private final Map<String, SocketIOClient> connectedClients = new ConcurrentHashMap<>();
+    //private final Map<String, List<Map<String, SocketIOClient>>> connectedClients = new ConcurrentHashMap<>();
 
     private static final UUID RESERVED_CLIENT_ID = UUID.fromString("00000000-0000-0000-0000-000000000000");
+    //private static final UUID RESERVED_CLIENT_ID_1 = UUID.fromString("00000000-0000-0000-0000-000000000001");
 
+    private static final Logger logger = LoggerFactory.getLogger(GroupService.class);
 
     @OnConnect
     public void onConnect(SocketIOClient client) {
         // Получаем userId из параметров URL
-        String groupId = client.getHandshakeData().getSingleUrlParam("groupId");
+        String userId = client.getHandshakeData().getSingleUrlParam("userId");
 
-        if (groupId != null) {
-            //System.out.println("groupId != null" );
-            // Проверяем, подключён ли уже клиент с таким groupId
-            List<SocketIOClient> clients = connectedClients.computeIfAbsent(groupId, k -> new ArrayList<>());
-            // Проверяем, является ли userId равным "0", чтобы сохранить его в зарезервированном элементе
-            if ("00000000-0000-0000-0000-000000000000".equals(groupId) && !clients.contains(client)) {
-                connectedClients.computeIfAbsent(groupId, k -> new ArrayList<>()).add(client);
-                System.out.println("Client(AI) with groupId 0 assigned to reserved slot.");
-            } else if(!"00000000-0000-0000-0000-000000000000".equals(groupId) && !clients.contains(client)) {
-                connectedClients.computeIfAbsent(groupId, k -> new ArrayList<>()).add(client); // Сохранение клиента с использованием groupId
-                System.out.println("Client conected whith groupId " + groupId);
+        if (userId != null) {
+            // Проверяем, подключён ли уже клиент с таким userId
+            if (connectedClients.containsKey(userId)) {
+                //logger.info("Client with userId {} is already connected.", userId);
+                return; // Не разрешаем повторное подключение для одного userId
+            }
+
+            // Проверка, является ли userId зарезервированным
+            if ("00000000-0000-0000-0000-000000000000".equals(userId)) {
+                // Если это зарезервированный AI-клиент, добавляем его в специальную ячейку
+                connectedClients.put(userId, client);
+                logger.info("Client(AI) with userId 0 assigned to reserved slot.");
+            } else {
+                // Для обычного клиента добавляем в мапу с userId
+                connectedClients.put(userId, client);
+                logger.info("Client with userId {} connected.", userId);
             }
         } else {
-            System.out.println("User connected without groupId");
+            logger.info("User connected without userId");
         }
     }
-//////////////////////////
 
-    /*@OnConnect
-    public void onConnect(SocketIOClient client) {
-        String groupId = client.getHandshakeData().getSingleUrlParam("groupId");
-
-        if (groupId != null) {
-            System.out.println("groupId != null");
-
-            // Проверяем, подключён ли уже клиент с таким groupId
-            List<SocketIOClient> clients = connectedClients.computeIfAbsent(groupId, k -> new ArrayList<>());
-            if (!clients.contains(client)) {
-                clients.add(client);
-
-                if ("00000000-0000-0000-0000-000000000000".equals(groupId)) {
-                    System.out.println("Client(AI) with groupId 0 assigned to reserved slot.");
-                } else {
-                    System.out.println("Client connected with groupId " + groupId);
-                }
-            } else {
-                System.out.println("Client with groupId " + groupId + " is already connected.");
-            }
-        } else {
-            System.out.println("User connected without groupId");
-        }
-    }*/
-
-/////////////////////
     @OnDisconnect
     public void onDisconnect(SocketIOClient client) {
-        System.out.println("Client disconnected: " + client.getSessionId());
+        logger.info("Client disconnected: " + client.getSessionId() + "userId = ");
         connectedClients.remove(client.getSessionId());
     }
 
     @OnEvent("message")
     public void onMessage(SocketIOClient client, MessageDTO messageDTO) {
-        String groupId = client.getHandshakeData().getSingleUrlParam("groupId");
-        System.out.println("Getting message from client with groupId" + groupId);
+        // Получаем userId из параметров URL
+        String userId = client.getHandshakeData().getSingleUrlParam("userId");
+        String groupId = messageDTO.getGroupId();
+        logger.info("Getting message from client with userId: " + userId);
+
+
+
+        // Определяем тип сообщения (AI или USER)
         MessageType flag = messageSocketService.GetFlag(messageDTO);
-        if(flag == MessageType.AI){
-            System.out.println("message from client == AI");
+
+        // Если сообщение от AI
+        if (flag == MessageType.AI) {
+            logger.info("Message from client == AI");
+
+            // Преобразуем MessageDTO в Message и сохраняем
             Message msg = messageSocketService.MessageDTOToMessage(messageDTO);
             msg = messageSocketService.saveMessage(msg);
+            messageSocketService.saveGroup(msg);
 
-            RequestForAI dateTime = messageSocketService.MessageDTOToMessageRequestForAI(msg);
+            // Ищем получателей по userId
+            //List<SocketIOClient> recipients = getRecipientsByUserId(userId);
+            List<String> userIds = messageSocketService.getUserByIds(connectedClients, groupId);
 
-            SocketIOClient recipientClient = null;
-
-            if (!connectedClients.isEmpty()) {
-                String reservedId = "00000000-0000-0000-0000-000000000000";
-                List<SocketIOClient> reservedClients = connectedClients.getOrDefault(reservedId, Collections.emptyList());
-                recipientClient = reservedClients.isEmpty() ? null : reservedClients.get(0);
-                // Получаем первого клиента (с индексом 0) из коллекции connectedClients
-                //recipientClient = reservedClients[0];
-                System.out.println("Getting message for AI   (groupId: " + groupId + " )");
+            //List<SocketIOClient> recipients = messageSocketService.getListByGroupId(userIds);
+            for (String currentUserId : userIds) {
+                client = connectedClients.get(currentUserId); // Получаем клиента из connectedClients
+                if (client != null) { // Проверяем, что клиент существует
+                    client.sendEvent("message", msg); // Отправляем сообщение
+                    logger.info("Send message to client with userId: " + currentUserId);
+                    client.sendEvent("not_available_ai"); // Отправляем сообщение
+                    logger.info("Stoping AI: " + currentUserId);
+                } else  logger.info("error!!!!! ");
             }
 
-            System.out.println("A message of the type was received message");
-
+            // Ищем клиент с зарезервированным userId для AI (если есть)
+            SocketIOClient recipientClient = connectedClients.get("00000000-0000-0000-0000-000000000000");
             if (recipientClient != null) {
                 Map<String, Object> message = new HashMap<>();
-                message.put("message", dateTime);
+                message.put("message", msg);
                 recipientClient.sendEvent("ai_send", message);
-                System.out.println("Getting message for AI   (groupId: " + groupId + " )   2");
+                logger.info("Send AI message to reserved client with userId: ");
             }
-
-            //client.sendEvent("ai_send", msg);
-            System.out.println(msg);
-            System.out.println("AI");
-
         }
 
-        if(flag == MessageType.user){
-            System.out.println("Getting message for user with groupId: " + groupId + " ) ");
+        // Если сообщение от обычного пользователя
+        if (flag == MessageType.user) {
+            logger.info("Message from user with userId: " + userId);
+
+            // Преобразуем MessageDTO в Message и сохраняем
             Message msg = messageSocketService.MessageDTOToMessage(messageDTO);
-            //SocketIOClient recipientClient = null;
-            //recipientClient = connectedClients.values().iterator().next();
-            //recipientClient.sendEvent("ai_send", msg);
             msg = messageSocketService.saveMessage(msg);
-            System.out.println("message fo user is saving: " + groupId);
-            List<SocketIOClient> recipients = connectedClients.getOrDefault(groupId, Collections.emptyList());
-            for (SocketIOClient recipientClient  : recipients) {
-                recipientClient.sendEvent("message", msg);
-                System.out.println("Send message for client with groupId: " + groupId);
-            }
-            System.out.println("user");
-        }
+            messageSocketService.saveGroup(msg);
 
+            // Отправляем сообщение всем подключенным пользователям
+            List<String> userIds = messageSocketService.getUserByIds(connectedClients, groupId);
+
+            //List<SocketIOClient> recipients = messageSocketService.getListByGroupId(userIds);
+            for (String currentUserId : userIds) {
+                client = connectedClients.get(currentUserId); // Получаем клиента из connectedClients
+                if (client != null) { // Проверяем, что клиент существует
+                    client.sendEvent("message", msg); // Отправляем сообщение
+                    logger.info("Send message to client with userId: " + currentUserId);
+                } else  logger.info("error!!!!! ");
+            }
+
+            logger.info("Message processed for user.");
+        }
     }
+
+    // Метод для получения получателей по userId
+  /*  private List<SocketIOClient> getRecipientsByUserId(String userId) {
+        // Можно использовать мапу connectedClients для поиска по userId
+        List<SocketIOClient> recipients = new ArrayList<>();
+        if (connectedClients.containsKey(userId)) {
+            recipients.add(connectedClients.get(userId));
+        }
+        return recipients;
+    }
+
+    // Метод для получения зарезервированного клиента для AI
+    private SocketIOClient getReservedClientForAI() {
+        // Можно искать клиента по зарезервированному userId
+        String reservedUserId = "00000000-0000-0000-0000-000000000000";
+        return connectedClients.getOrDefault(reservedUserId, null);
+    }*/
+
     @OnEvent("ping")
     public void onPing(SocketIOClient client) {
         client.sendEvent("pong");
-
-        System.out.println("получен пинг от клиента ");
+        logger.info("получен пинг от клиента ");
     }
     @OnEvent("new_answer")
     public void onNewAnswer(SocketIOClient client, Answer answer ) {
-        //String groupId = client.getHandshakeData().getSingleUrlParam("groupId");
-        //client.sendEvent("message", "Message received:");
-        //Message msg = messageSocketService.AnswerToMessage(answer);
 
         String groupId = answer.getGroupId();
-        System.out.println("рассылаем клиентам ответ от нейронки" + answer.getAnswer());
+        logger.info("рассылаем клиентам ответ от нейронки" + answer.getAnswer());
 
         Message msg = messageSocketService.saveMessage(messageSocketService.AnswerToMessage(answer));
-        System.out.println("Сохранение прошло");
-        List<SocketIOClient> recipients = connectedClients.getOrDefault(groupId, Collections.emptyList());
-        for (SocketIOClient recipientClient  : recipients) {
-            recipientClient.sendEvent("message", msg);
-            System.out.println("Send message for client with groupId: " + groupId);
+        logger.info("Сохранение прошло");
+
+        messageSocketService.saveGroup(msg);
+
+        List<String> userIds = messageSocketService.getUserByIds(connectedClients, groupId);
+
+        //List<SocketIOClient> recipients = messageSocketService.getListByGroupId(userIds);
+        for (String currentUserId : userIds) {
+            client = connectedClients.get(currentUserId); // Получаем клиента из connectedClients
+            if (client != null) { // Проверяем, что клиент существует
+                client.sendEvent("message", msg); // Отправляем сообщение
+                logger.info("Send message to client with userId: " + currentUserId);
+                client.sendEvent("available_ai"); // Отправляем сообщение
+                logger.info("Stoping AI: " + currentUserId);
+            } else  logger.info("error!!!!! ");
+        }
+
+        logger.info("Выполнена отправка msg пользователям от нейронки");
+    }
+
+    @OnEvent("add_users_to_group")
+    public void addUserToGroup(SocketIOClient client, List<String> userIds ) {
+        String groupId = client.getHandshakeData().getSingleUrlParam("groupId");
+        //String userId = client.getHandshakeData().getSingleUrlParam("userId");
+        messageSocketService.addUser(groupId, userIds);
+        MessageAddedUser messageAddedUser = messageSocketService.responeMessage(groupId);
+
+
+        List<String> userOldIds = messageSocketService.getUserByIds(connectedClients, groupId);
+
+        //List<SocketIOClient> recipients = messageSocketService.getListByGroupId(userIds);
+        for (String currentUserId : userOldIds) {
+            client = connectedClients.get(currentUserId); // Получаем клиента из connectedClients
+            if (client != null) { // Проверяем, что клиент существует
+                client.sendEvent("added_users_to_group", messageAddedUser); // Отправляем сообщение
+                logger.info("Send message added to client client with userId: " + currentUserId);
+            } else  logger.info("error!!!!! ");
         }
 
 
-        //client.sendEvent("message", msg);
-        System.out.println("Выполнено");
+        userOldIds = userIds;
+        logger.info("error!!!!! ");
+        //List<SocketIOClient> recipients = messageSocketService.getListByGroupId(userIds);
+        for (String currentUserId : userOldIds) {
+            client = connectedClients.get(currentUserId); // Получаем клиента из connectedClients
+            logger.info("error!!!!! ");
+            if (client != null) { // Проверяем, что клиент существует
+                client.sendEvent("get_chat", groupId); // Отправляем сообщение
+                logger.info("Client added to client client with userId: " + currentUserId);
+            } else  logger.info("error!!!!! ");
+        }
+
     }
+
+
 
 }
 

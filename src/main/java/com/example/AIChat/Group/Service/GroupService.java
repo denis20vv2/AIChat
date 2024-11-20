@@ -73,6 +73,11 @@ public class GroupService {
         return groupRep.findByUsersUserId(userId, pageable).getContent();
     }
 
+    public Group GetGroupByGroupId(String groupId) {
+
+        return groupRep.findByGroupId(groupId);
+    }
+
 
 
 }

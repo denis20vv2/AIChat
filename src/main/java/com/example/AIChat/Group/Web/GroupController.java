@@ -27,7 +27,7 @@ public class GroupController {
     private static final Logger logger = LoggerFactory.getLogger(GroupController.class);
 
     @Operation(
-            summary = "Создание новой группы",
+            summary = "Создание нового чата",
             description = "Ожидаем на вход объект типа group и сохраняем его в БД"
     )
     @PostMapping("createGroup")
@@ -39,7 +39,7 @@ public class GroupController {
     }
 
     @Operation(
-            summary = "Получение групп по userId",
+            summary = "Получение чатов по userId",
             description = "Получение userid, всех связаных с userи вывод groups"
     )
     @GetMapping("chats/{userId}")
@@ -48,6 +48,18 @@ public class GroupController {
     public List<Group> GetAllGroupsByUserId (@PathVariable String userId, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
         logger.info("get chats by userid");
         return groupService.getAllGroupsByUserId(userId, page, size);
+    }
+
+    @Operation(
+            summary = "Получение чата по groupId",
+            description = "Получение чата по groupId"
+    )
+    @GetMapping("chatsById/{groupId}")
+    //@ResponseStatus(HttpStatus.CREATED)
+    @ResponseBody
+    public Group GetGroupByGroupId (@PathVariable String groupId) {
+        logger.info("get chats by groupId");
+        return groupService.GetGroupByGroupId(groupId);
     }
 
 

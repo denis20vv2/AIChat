@@ -3,6 +3,7 @@ package com.example.AIChat.Message.DTO;
 import com.example.AIChat.Message.domain.MessageType;
 import com.example.AIChat.User.Domain.User;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -28,10 +29,10 @@ public class MessageDTO {
     private MessageType messageType;
 
     //@NotNull(message = "AiRepliedid data is missing")
-    private String AiRepliedid;
+    //private String aiReplied;
 
     @NotNull(message = "created data is missing")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSSSSS")
-    private Timestamp created;
+    @Max(9999999999999L)
+    private long created;
 
 }

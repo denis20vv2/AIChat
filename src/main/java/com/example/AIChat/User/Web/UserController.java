@@ -27,7 +27,7 @@ public class UserController {
 
     private static final Logger logger = LoggerFactory.getLogger(GroupController.class);
     @Operation(
-            summary = "Получение группы",
+            summary = "Получение всех пользователей",
             description = "Получение всех групп с пагинацией"
     )
     @GetMapping("GetUsers/All")
@@ -57,7 +57,7 @@ public class UserController {
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
     public ResponseAutorizate getUsersAutorizate(@Valid @RequestBody AutorizateReq autorizateReq) {
-        logger.info("request on autorization");
+        logger.info("request on authorization");
         return userService.getUsersAutorizate(autorizateReq);
     }
 
