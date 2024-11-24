@@ -1,0 +1,2 @@
+Запуск: java -jar D:\AiChat\AIChat\out\artifacts\AIChat_jar\AIChat.jar
+Переход в нужный каталог: cd /D D:\AiChat\AIChat\out\artifacts\AIChat_jar
