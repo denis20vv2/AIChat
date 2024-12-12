@@ -30,7 +30,7 @@ public class MessageService {
 
         //User user = userRep.findByUserId(userId);
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by("created").ascending());
+        Pageable pageable = PageRequest.of(page, size, Sort.by("created").descending());
         return messageRep.findByGroupId(groupId, pageable).getContent();
     }
 

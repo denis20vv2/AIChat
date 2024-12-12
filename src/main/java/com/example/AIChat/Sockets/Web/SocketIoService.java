@@ -61,10 +61,22 @@ public class SocketIoService {
         }
     }
 
+
+   /* public String getKeyByValue(SocketIOClient value) {
+        for (Map.Entry<String, SocketIOClient> entry : connectedClients.entrySet()) {
+            if (entry.getValue().equals(value)) {
+                return entry.getKey();
+            }
+        }
+        return null;
+    }*/
+
     @OnDisconnect
     public void onDisconnect(SocketIOClient client) {
-        logger.info("Client disconnected: " + client.getSessionId() + "userId = ");
-        connectedClients.remove(client.getSessionId());
+        //logger.info("Client disconnected: " + client.getSessionId() + "userId = ");
+        String key = messageSocketService.getKeyByValue(client, connectedClients);
+        logger.info("Client disconnected: " + client.getSessionId() + "userId = " + key);
+        connectedClients.remove(key);
     }
 
     @OnEvent("message")

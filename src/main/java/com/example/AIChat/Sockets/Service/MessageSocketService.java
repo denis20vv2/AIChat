@@ -12,6 +12,7 @@ import com.example.AIChat.Sockets.DTO.MessageAddedUser;
 import com.example.AIChat.User.Domain.User;
 import com.example.AIChat.User.Rep.UserRep;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
 
@@ -19,15 +20,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Service
 public class MessageSocketService {
 
     private final MessageRep messageRep;
     private final UserRep userRep;
     private final GroupRep groupRep;
+
+    //private final Map<String, SocketIOClient> connectedClients = new ConcurrentHashMap<>();
 
     public MessageType GetFlag(MessageDTO messageDTO){
         //MessageType flag = message.getMessageType();
@@ -145,6 +149,17 @@ public class MessageSocketService {
         message.setCreated(answer.getCreated());
 
         return message;
+    }
+
+
+    public String getKeyByValue(SocketIOClient value, Map<String, SocketIOClient> connectedClients ) {
+
+        for (Map.Entry<String, SocketIOClient> entry : connectedClients.entrySet()) {
+            if (entry.getValue().equals(value)) {
+                return entry.getKey();
+            }
+        }
+        return null;
     }
 
 

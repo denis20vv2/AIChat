@@ -43,7 +43,7 @@ public class MessageController {
     )
     @GetMapping("messages/{groupId}")
     @ResponseBody
-    public List<Message> getAllMessagesByGroupId (@PathVariable String groupId, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size){
+    public List<Message> getAllMessagesByGroupId (@PathVariable String groupId, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size){
         logger.info("Get messages by groupId");
         return messageService.getAllMessagesByGroupId(groupId, page, size);
     }
