@@ -54,6 +54,22 @@ CREATE TABLE UZ (
     user_id VARCHAR(255) NOT NULL
 );
 
+
+CREATE TABLE reaction (
+    reaction_id  VARCHAR(255) NOT NULL PRIMARY KEY,
+    message_id  VARCHAR(255) NOT NULL,
+    emoji VARCHAR(255) NOT NULL,
+    CONSTRAINT fk_message FOREIGN KEY (message_id) REFERENCES message (message_id) ON DELETE CASCADE
+);
+
+create table reaction_user (
+    reaction_id VARCHAR(255) not null ,
+    user_id VARCHAR(255) not null,
+    PRIMARY KEY (reaction_id, user_id),
+    FOREIGN KEY (reaction_id) REFERENCES reaction (reaction_id) ON DELETE CASCADE,
+    CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES "user" (user_id) ON DELETE CASCADE
+);
+
 --select * from "user"
 --select * from "group"
 --select * from message
