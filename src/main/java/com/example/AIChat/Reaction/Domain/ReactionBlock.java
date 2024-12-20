@@ -25,7 +25,7 @@ public class ReactionBlock {
     @Column(nullable = false)
     private String reactionId;
 
-    @ManyToMany(cascade={CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
+    @ManyToMany(cascade={CascadeType.MERGE}, fetch = FetchType.EAGER)
     @JoinTable(
             name = "reaction_user",
             joinColumns = @JoinColumn(name = "reaction_id"),

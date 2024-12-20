@@ -13,6 +13,7 @@ import com.example.AIChat.Reaction.DTO.ReactionDTO;
 import com.example.AIChat.Reaction.Domain.ReactionBlock;
 import com.example.AIChat.Sockets.DTO.Answer;
 import com.example.AIChat.Sockets.DTO.MessageAddedUser;
+import com.example.AIChat.Sockets.DTO.ReactionSocketDTO;
 import com.example.AIChat.Sockets.Service.MessageSocketService;
 import com.example.AIChat.User.Domain.User;
 import lombok.RequiredArgsConstructor;
@@ -238,14 +239,30 @@ public class SocketIoService {
 
         }
         logger.info(" G");
+
         List<ReactionDTO> newReactionBlocks =  messageSocketService.getAllReactionByMessageId(newReactionDTO.getMessageId());
-        logger.info(" G");
-        for (String currentUserId : userIds) {
-            client = connectedClients.get(currentUserId); // Получаем клиента из connectedClients
-            if (client != null) { // Проверяем, что клиент существует
-                client.sendEvent("new_reaction", newReactionBlocks ); // Отправляем сообщение
-                logger.info("Send reaction to client with userId: " + currentUserId);
-            } else  logger.info("error!!!!! ");
+
+        if(newReactionBlocks.isEmpty() || newReactionBlocks == null){
+            ReactionSocketDTO reactionSocketDTO = new ReactionSocketDTO();
+            reactionSocketDTO.setMessageId(newReactionDTO.getMessageId());
+
+            for (String currentUserId : userIds) {
+                client = connectedClients.get(currentUserId); // Получаем клиента из connectedClients
+                if (client != null) { // Проверяем, что клиент существует
+                    client.sendEvent("new_reaction", reactionSocketDTO ); // Отправляем сообщение
+                    logger.info("Send reaction to client with userId: " + currentUserId);
+                } else  logger.info("error!!!!! ");
+            }
+        }else {
+
+            logger.info(" G");
+            for (String currentUserId : userIds) {
+                client = connectedClients.get(currentUserId); // Получаем клиента из connectedClients
+                if (client != null) { // Проверяем, что клиент существует
+                    client.sendEvent("new_reaction", newReactionBlocks); // Отправляем сообщение
+                    logger.info("Send reaction to client with userId: " + currentUserId);
+                } else logger.info("error!!!!! ");
+            }
         }
 
     }

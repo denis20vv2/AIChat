@@ -46,7 +46,7 @@ public class MessageToReactionDTOConverter implements Converter<Message, Message
 
             ReactionDTO reactionDTO = new ReactionDTO();
 
-            reactionDTO.setReactionId(reactionBlock.getReactionId());
+            //reactionDTO.setReactionId(reactionBlock.getReactionId());
             reactionDTO.setMessageId(reactionBlock.getMessage().getMessageId());
             reactionDTO.setEmoji(reactionBlock.getEmoji());
 

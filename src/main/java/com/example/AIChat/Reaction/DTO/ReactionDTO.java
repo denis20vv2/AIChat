@@ -10,8 +10,8 @@ import java.util.List;
 @Setter
 public class ReactionDTO {
 
-    @Column(nullable = false)
-    private String reactionId;
+    //@Column(nullable = false)
+    //private String reactionId;
 
     @Column(nullable = false)
     private List<String> userIds;
