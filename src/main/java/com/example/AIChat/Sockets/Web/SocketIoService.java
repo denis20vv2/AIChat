@@ -8,6 +8,9 @@ import com.example.AIChat.Group.Service.GroupService;
 import com.example.AIChat.Message.DTO.MessageDTO;
 import com.example.AIChat.Message.domain.Message;
 import com.example.AIChat.Message.domain.MessageType;
+import com.example.AIChat.Reaction.DTO.NewReactionDTO;
+import com.example.AIChat.Reaction.DTO.ReactionDTO;
+import com.example.AIChat.Reaction.Domain.ReactionBlock;
 import com.example.AIChat.Sockets.DTO.Answer;
 import com.example.AIChat.Sockets.DTO.MessageAddedUser;
 import com.example.AIChat.Sockets.Service.MessageSocketService;
@@ -149,24 +152,6 @@ public class SocketIoService {
             logger.info("Message processed for user.");
         }
     }
-
-    // Метод для получения получателей по userId
-  /*  private List<SocketIOClient> getRecipientsByUserId(String userId) {
-        // Можно использовать мапу connectedClients для поиска по userId
-        List<SocketIOClient> recipients = new ArrayList<>();
-        if (connectedClients.containsKey(userId)) {
-            recipients.add(connectedClients.get(userId));
-        }
-        return recipients;
-    }
-
-    // Метод для получения зарезервированного клиента для AI
-    private SocketIOClient getReservedClientForAI() {
-        // Можно искать клиента по зарезервированному userId
-        String reservedUserId = "00000000-0000-0000-0000-000000000000";
-        return connectedClients.getOrDefault(reservedUserId, null);
-    }*/
-
     @OnEvent("ping")
     public void onPing(SocketIOClient client) {
         client.sendEvent("pong");
@@ -179,7 +164,6 @@ public class SocketIoService {
         logger.info("рассылаем клиентам ответ от нейронки" + answer.getAnswer());
 
         Message msg = messageSocketService.saveMessage(messageSocketService.AnswerToMessage(answer));
-        logger.info("Сохранение прошло");
 
         messageSocketService.saveGroup(msg);
 
@@ -206,7 +190,6 @@ public class SocketIoService {
         messageSocketService.addUser(groupId, userIds);
         MessageAddedUser messageAddedUser = messageSocketService.responeMessage(groupId);
 
-
         List<String> userOldIds = messageSocketService.getUserByIds(connectedClients, groupId);
 
         //List<SocketIOClient> recipients = messageSocketService.getListByGroupId(userIds);
@@ -232,6 +215,47 @@ public class SocketIoService {
         }
 
     }
+
+    @OnEvent("new_reaction")
+    public void saveNewReaction(SocketIOClient client, NewReactionDTO newReactionDTO) {
+        logger.info(" G");
+        String groupId = client.getHandshakeData().getSingleUrlParam("groupId");
+        logger.info(" G");
+        List<String> userIds = messageSocketService.getUserByIds(connectedClients, groupId);
+        logger.info(" G");
+        if(newReactionDTO.getEmoji() == null){
+
+            logger.info(" delete emoji ");
+
+        messageSocketService.chekUser(newReactionDTO.getUserId(), newReactionDTO.getMessageId());
+
+
+            //client.sendEvent("new_reaction");
+        }else{
+
+            logger.info(" creation emoji ");
+            messageSocketService.saveReaction(newReactionDTO);
+
+        }
+        logger.info(" G");
+        List<ReactionDTO> newReactionBlocks =  messageSocketService.getAllReactionByMessageId(newReactionDTO.getMessageId());
+        logger.info(" G");
+        for (String currentUserId : userIds) {
+            client = connectedClients.get(currentUserId); // Получаем клиента из connectedClients
+            if (client != null) { // Проверяем, что клиент существует
+                client.sendEvent("new_reaction", newReactionBlocks ); // Отправляем сообщение
+                logger.info("Send reaction to client with userId: " + currentUserId);
+            } else  logger.info("error!!!!! ");
+        }
+
+    }
+
+   /* @OnEvent("change_reaction")
+    public void saveChangeReaction(SocketIOClient client, NewReactionDTO newReactionDTO) {
+
+
+
+    }*/
 
 
 

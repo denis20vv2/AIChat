@@ -1,22 +1,17 @@
 package com.example.AIChat.Reaction.DTO;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
-
 @Getter
 @Setter
-public class ReactionDTO {
+public class NewReactionDTO {
 
     @Column(nullable = false)
-    private String reactionId;
+    private String userId;
 
-    @Column(nullable = false)
-    private List<String> userIds;
-
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String emoji;
 
     @Column(nullable = false)

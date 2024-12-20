@@ -80,8 +80,10 @@ create table reaction_user (
 --drop table message CASCADE;
 --drop table group_user;
 --delete from flyway_schema_history;
---drop table UZ
---
+--drop table UZ;
+--drop table reaction CASCADE;
+--drop table reaction_user CASCADE
+
 --drop sequence message_seq
 --drop sequence group_seq
 --drop sequence user_seq

@@ -39,7 +39,7 @@ public class ReactionService {
 
         logger.info("Получение реакции по ID");
 
-        ReactionDTO reactionDTO = reactionToreactionDTOConverter.convert(reactionRep.findByReactionId(reactionId)) ;
+        ReactionDTO reactionDTO = reactionToreactionDTOConverter.convert(reactionRep.findByReactionId(reactionId));
 
         return reactionDTO;
     }

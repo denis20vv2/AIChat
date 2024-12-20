@@ -3,23 +3,34 @@ package com.example.AIChat.Sockets.Service;
 import com.corundumstudio.socketio.SocketIOClient;
 import com.example.AIChat.Group.Domain.Group;
 import com.example.AIChat.Group.Rep.GroupRep;
+import com.example.AIChat.Group.Web.GroupController;
+import com.example.AIChat.Message.Converter.MessageToReactionDTOConverter;
 import com.example.AIChat.Message.DTO.MessageDTO;
+import com.example.AIChat.Message.DTO.MessageReaction;
 import com.example.AIChat.Message.Rep.MessageRep;
 import com.example.AIChat.Message.domain.Message;
 import com.example.AIChat.Message.domain.MessageType;
+import com.example.AIChat.Reaction.Converter.NewReactionToReactionBlock;
+import com.example.AIChat.Reaction.Converter.ReactionToreactionDTOConverter;
+import com.example.AIChat.Reaction.DTO.NewReactionDTO;
+import com.example.AIChat.Reaction.DTO.ReactionDTO;
+import com.example.AIChat.Reaction.Domain.ReactionBlock;
+import com.example.AIChat.Reaction.Rep.ReactionRep;
 import com.example.AIChat.Sockets.DTO.Answer;
 import com.example.AIChat.Sockets.DTO.MessageAddedUser;
 import com.example.AIChat.User.Domain.User;
 import com.example.AIChat.User.Rep.UserRep;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Hibernate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.security.PublicKey;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -30,6 +41,14 @@ public class MessageSocketService {
     private final MessageRep messageRep;
     private final UserRep userRep;
     private final GroupRep groupRep;
+    private final ReactionRep reactionRep;
+
+    private final ReactionToreactionDTOConverter reactionToreactionDTOConverter;
+
+    private final NewReactionToReactionBlock newReactionToReactionBlock;
+
+    private final MessageToReactionDTOConverter messageToReactionDTOConverter;
+    private static final Logger logger = LoggerFactory.getLogger(MessageSocketService.class);
 
     //private final Map<String, SocketIOClient> connectedClients = new ConcurrentHashMap<>();
 
@@ -134,12 +153,16 @@ public class MessageSocketService {
         Message message = new Message();
         String oldMessageId = answer.getMessageId();
 
-        message.setMessageNested(messageRep.findByMessageId(answer.getMessageId()));
+        //message.setMessageNested(messageRep.findByMessageId(answer.getMessageId()));
+
+        Message messageNested = messageRep.findByMessageId(answer.getMessageId());
+        messageNested.setReactionBlocks(null);
+        message.setMessageNested(messageNested);
+
         message.setMessage(answer.getAnswer());
 
-
-
         User user = (userRep.findByUserId("AI"));
+
         message.setUser(user);
 
         message.setGroupId((messageRep.findByMessageId(oldMessageId)).getGroupId());
@@ -147,6 +170,8 @@ public class MessageSocketService {
         message.setMessageType((messageRep.findByMessageId(oldMessageId)).getMessageType());
 
         message.setCreated(answer.getCreated());
+
+       // logger.info(" G");
 
         return message;
     }
@@ -159,6 +184,217 @@ public class MessageSocketService {
                 return entry.getKey();
             }
         }
+        return null;
+    }
+
+    public List<ReactionDTO> getAllReactionByMessageId(String messageId){
+
+        Set<ReactionBlock> reactionBlocks = messageRep.findByMessageId(messageId).getReactionBlocks();
+        logger.info(" G");
+        List<ReactionDTO> reactionDTOList = new ArrayList<>();
+        logger.info(" G");
+
+       for(ReactionBlock reactionBlock : reactionBlocks){
+           ReactionDTO reactionDTO = reactionToreactionDTOConverter.convert(reactionBlock);
+           logger.info(" G");
+           reactionDTOList.add(reactionDTO);
+       }
+
+        return reactionDTOList;
+    }
+
+    @Transactional
+        public ReactionBlock getReaction(String messageId, String emoji){
+
+
+        Set<ReactionBlock> ReactionBlocks = messageRep.findByMessageId(messageId).getReactionBlocks();
+
+        for(ReactionBlock reactionBlock: ReactionBlocks ){
+
+            if(reactionBlock.getEmoji().equals(emoji)){
+
+                return reactionBlock;
+
+            }
+
+        }
+
+        return null;
+        //return reactionRep.findAllByMessageIdAndEmoji(messageId, emoji);
+    }
+
+    public MessageReaction saveReaction(NewReactionDTO newReactionDTO){
+
+        Message message = messageRep.findByMessageId(newReactionDTO.getMessageId());
+
+        logger.info(" G");
+
+        logger.info(" Getting method saveReaction");
+
+        ReactionBlock newReactionBlock =  getReaction(newReactionDTO.getMessageId(), newReactionDTO.getEmoji());
+        if(newReactionBlock == null){
+
+            logger.info("newReactionBlock == null");
+
+            chekUser(newReactionDTO.getUserId(), newReactionDTO.getMessageId());
+
+            logger.info("newReactionBlock delete old reaction");
+
+            newReactionBlock = newReactionToReactionBlock.convert(newReactionDTO);
+
+            logger.info(" Вызов do ");
+
+            message = messageRep.findByMessageId(newReactionDTO.getMessageId());
+
+            reactionRep.save(newReactionBlock);
+
+            Set<ReactionBlock> reactionBlocks = message.getReactionBlocks();
+
+            logger.info(" Вызов do ");
+
+            reactionBlocks.add(reactionRep.save(newReactionBlock));
+
+            message.setReactionBlocks(reactionBlocks);
+
+
+            logger.info("newReactionBlock saved");
+
+            //logger.info(" Вызов do ");
+
+            return messageToReactionDTOConverter.convert(message);
+
+        }else {
+
+            //logger.info("newReactionBlock != null");
+
+            chekUser(newReactionDTO.getUserId(), newReactionDTO.getMessageId());
+
+            //logger.info(" Вызов do ");
+
+            Set<User> users = newReactionBlock.getUser();
+
+            //logger.info(" Вызов do ");
+
+            users.add(userRep.findByUserId(newReactionDTO.getUserId()));
+
+            //logger.info(" Вызов do ");
+
+            newReactionBlock.setUser(users);
+
+            message = messageRep.findByMessageId(newReactionDTO.getMessageId());
+
+            //reactionRep.save(newReactionBlock);
+
+            Set<ReactionBlock> reactionBlocks = message.getReactionBlocks();
+
+            reactionBlocks.add(reactionRep.save(newReactionBlock));
+
+            message.setReactionBlocks(reactionBlocks);
+
+
+            logger.info("newReactionBlock saved");
+            return messageToReactionDTOConverter.convert(message);
+
+        }
+
+        //return null;
+    }
+
+
+    public void chekUser(String userId, String messageId){
+
+        logger.info("Вызов  chekUser");
+        ////////////////////////////////////////////////////////////////////ошибка тут
+        Message message = messageRep.findByMessageId(messageId);
+
+        Set<ReactionBlock> reactionBlocks = message.getReactionBlocks();
+
+        //List<ReactionBlock> reactionBlocks = reactionRep.findByMessageId(messageId);
+        logger.info("получен  reactionBlocks");
+        boolean found = false;
+        logger.info(" Вызов do ");
+        String reactionId = null;
+
+        logger.info(" Вызов do ");
+
+        //do {
+            //logger.info(" Вызвали do ");
+            for (ReactionBlock reactionBlock : reactionBlocks) {
+                // Ищем userId в списке пользователей в текущем ReactionBlock
+                logger.info("reactionBlock = " + reactionBlock.getReactionId());
+                for (User user : reactionBlock.getUser()) {
+                    logger.info("userId = " + reactionBlock.getUser());
+                    if (user.getUserId().equals(userId)) {
+                        found = true;
+                        reactionId = reactionBlock.getReactionId();
+                        break;
+                    }
+                }
+                if (found) break;
+            }
+
+            //if (found) break;
+
+       // } while (!found);
+
+        if (found) {
+            System.out.println("User ID найден: " + userId);
+
+            ReactionBlock reactionBlock = reactionRep.findByReactionId(reactionId);
+
+          //  logger.info(" Вызов do ");
+
+            Set<User> users = reactionBlock.getUser();
+
+           // logger.info(" Вызов do ");
+
+            users.removeIf(user -> user.getUserId().equals(userId));
+
+           // logger.info(" Вызов do ");
+
+            if(users.isEmpty() || users == null){
+
+              //  logger.info(" Вызов do ");
+
+                Set<ReactionBlock> newReactionBlocks = message.getReactionBlocks();
+              //  logger.info(" Вызов do ");
+                String reactionIdNew = reactionId;
+               // logger.info(" Вызов do ");
+                newReactionBlocks.removeIf(newReactionBlock -> reactionBlock.getReactionId().equals(reactionIdNew));
+               // logger.info(" Вызов do ");
+                message.setReactionBlocks(newReactionBlocks);
+               // logger.info(" Вызов do ");
+                messageRep.save(message);
+               // logger.info(" Вызов do ");
+                //logger.info(" Вызов do ");
+
+                reactionRep.delete(reactionBlock);
+
+            }else {
+
+                //logger.info(" Вызов do ");
+
+                reactionBlock.setUser(users);
+
+                //logger.info(" Вызов do ");
+
+                System.out.println("User удален из старой реакции с id: " + userId);
+
+                reactionRep.save(reactionBlock);
+            }
+
+        } else {
+            System.out.println("User с ID не найден." + userId);
+
+        }
+
+
+    }
+
+    public ReactionBlock deleteReaction(NewReactionDTO newReactionDTO){
+
+
+
         return null;
     }
 

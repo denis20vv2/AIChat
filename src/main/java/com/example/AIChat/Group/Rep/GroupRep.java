@@ -18,6 +18,8 @@ public interface GroupRep extends JpaRepository <Group, Long> {
     //Group findByUserId(UUID userId);
     Page<Group> findByUsersUserId (String userId, Pageable pageable);
 
+    //Page<Group> findByUserUserId (String userId);
+
     //Group findByUserUserId (String groupId);
 
     Group findByGroupId(String groupId);

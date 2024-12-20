@@ -2,6 +2,8 @@ package com.example.AIChat.Message.Service;
 
 import com.example.AIChat.Group.Domain.Group;
 import com.example.AIChat.Group.Rep.GroupRep;
+import com.example.AIChat.Message.Converter.MessageToReactionDTOConverter;
+import com.example.AIChat.Message.DTO.MessageReaction;
 import com.example.AIChat.Message.Rep.MessageRep;
 import com.example.AIChat.Message.domain.Message;
 import com.example.AIChat.User.Domain.User;
@@ -20,20 +22,27 @@ public class MessageService {
     private final GroupRep groupRep;
     private final UserRep userRep;
     private final MessageRep messageRep;
+    private final MessageToReactionDTOConverter messageToReactionDTOConverter;
 
     public List<Message> getAllMessages(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("message").ascending());
         return messageRep.findAll(pageable).getContent();
     }
 
-    public List<Message> getAllMessagesByGroupId(String groupId, int page, int size) {
+    public List<MessageReaction> getAllMessagesByGroupId(String groupId, int page, int size) {
 
         //User user = userRep.findByUserId(userId);
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("created").descending());
-        return messageRep.findByGroupId(groupId, pageable).getContent();
+
+        List<Message> messages = messageRep.findByGroupId(groupId, pageable).getContent();
+
+        return messages.stream()
+                .map(messageToReactionDTOConverter::convert) // Применяем конвертер
+                .toList(); // Сбор результата в список
     }
-
-
-
 }
+
+
+
+

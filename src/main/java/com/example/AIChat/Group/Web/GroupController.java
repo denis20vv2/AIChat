@@ -1,5 +1,6 @@
 package com.example.AIChat.Group.Web;
 
+import com.example.AIChat.Group.DTO.GroupDTO;
 import com.example.AIChat.Group.DTO.PostGroupReq;
 import com.example.AIChat.Group.Domain.Group;
 import com.example.AIChat.Group.Service.GroupService;
@@ -45,7 +46,7 @@ public class GroupController {
     @GetMapping("chats/{userId}")
     //@ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
-    public List<Group> GetAllGroupsByUserId (@PathVariable String userId, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+    public List<GroupDTO> GetAllGroupsByUserId (@PathVariable String userId, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
         logger.info("get chats by userid");
         return groupService.getAllGroupsByUserId(userId, page, size);
     }

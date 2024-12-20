@@ -1,6 +1,7 @@
 package com.example.AIChat.Message.Web;
 
 import com.example.AIChat.Group.Web.GroupController;
+import com.example.AIChat.Message.DTO.MessageReaction;
 import com.example.AIChat.Message.Service.MessageService;
 import com.example.AIChat.Message.domain.Message;
 import com.example.AIChat.User.Domain.User;
@@ -43,7 +44,7 @@ public class MessageController {
     )
     @GetMapping("messages/{groupId}")
     @ResponseBody
-    public List<Message> getAllMessagesByGroupId (@PathVariable String groupId, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size){
+    public List<MessageReaction> getAllMessagesByGroupId (@PathVariable String groupId, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size){
         logger.info("Get messages by groupId");
         return messageService.getAllMessagesByGroupId(groupId, page, size);
     }
