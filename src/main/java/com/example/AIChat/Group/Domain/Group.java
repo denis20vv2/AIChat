@@ -23,7 +23,7 @@ public class Group {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private String GroupId;
+    private String groupId;
 
     @Column(nullable = false)
     @Schema(description = "адрес аватара", example = "group_avatar1.jpg")
@@ -33,7 +33,7 @@ public class Group {
     @Schema(description = "имя юзера", example = "userNew")
     private String name;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
     @JoinTable(
             name = "group_user",
             joinColumns = @JoinColumn(name = "group_id"),
@@ -42,7 +42,7 @@ public class Group {
     @Column(nullable = false)
     private Set<User> users = new HashSet<>();
 
-    @OneToOne(optional = false)
+    @OneToOne(optional = true)
     @JoinColumn(name = "last_message_id", referencedColumnName = "messageId", nullable = true)
     private Message lastMessage;
 

@@ -10,4 +10,5 @@ import java.util.Optional;
 public interface UserRep extends JpaRepository<User, Long> {
 
   User findByUserId(String userId);
+
 }
